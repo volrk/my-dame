@@ -8,26 +8,27 @@ export interface Props {
     x:number,
     y:number,
     pionColor: PionColor|null,
+    caseColor:CaseColor,
     select : ()=>void
 
 }
 
 function Case(props:Props) {
   return (
-    <div className={"case " +color(props.x,props.y)} onClick={()=>props.select()}>
-        {props.pionColor===null?<></>:<Pion x={props.x} y={props.y} color={props.pionColor} />}
+    <div className={"case " +props.caseColor} onClick={()=>props.select()}>
+        {props.pionColor===null? <></>:<Pion x={props.x} y={props.y} color={props.pionColor} />}
     </div>
   );
 }
 
 export default Case;
 
-enum CaseColor{
+export enum CaseColor{
     BLACK = "black",
     WHITE = "white",
 }
 
-function color(x:number,y:number):CaseColor{
+export function colorCase(x:number,y:number):CaseColor{
     if(x%2===0){
         if(y%2===0){
             return CaseColor.WHITE;
@@ -39,5 +40,3 @@ function color(x:number,y:number):CaseColor{
     }
     return CaseColor.WHITE;
 }
-
-
