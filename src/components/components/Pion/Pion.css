@@ -8,10 +8,14 @@
 
 .pion.black{
     background: black;
-    border:1px solid white;
+    border:2px solid white;
 }
 
 .pion.white{
     background: white;
-    border: 1px solid black
+    border: 2px solid black
+}
+
+.pion.selected{
+    border: 2px solid yellow
 }

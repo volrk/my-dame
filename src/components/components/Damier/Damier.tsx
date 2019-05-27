@@ -2,7 +2,7 @@
 import * as React from 'react';
 import './Damier.css';
 import Case, {colorCase, CaseColor} from '../Case/Case';
-import  Pion, { PionColor } from '../Pion/Pion';
+import  Pion, { PionColor, PionInfos } from '../Pion/Pion';
 
 export interface Props {
   nombreLigne:number;
@@ -29,7 +29,7 @@ function Damier(props:Props) {
                       y={y} 
                       select={()=>setState(handleClick(state,x,y))} 
                       caseColor={caseColor}
-                      pionColor={findColorPion(state.listPion,x,y,caseColor)}/>);
+                      pionInfos={findPion(state.listPion,x,y)}/>);
     }
     jeux.push(<div className="board-row" key={y}>{row}</div>)
   }
@@ -42,24 +42,32 @@ function Damier(props:Props) {
 }
 
 function handleClick(state:State, x:number,y:number):State{
-  let pion = state.listPion.find(element=>{return (element.props.x===x && element.props.y===y)})
-  if (pion!==undefined){
-    return {...state, selectedPion:pion};
-  }
   const selectedPion = state.selectedPion;
-  if(selectedPion!==undefined){
-    let list = state.listPion.filter(element=>{return (element.props.x!==selectedPion.props.x || element.props.y!==selectedPion.props.y)})
-    list.push(new Pion({x:x,y:y,color:selectedPion.props.color}))
-    return{...state, selectedPion:undefined,listPion:list}
+  const pion = state.listPion.find(element=>{return (element.props.x===x && element.props.y===y)})
+  if(selectedPion===undefined){
+    if (pion!==undefined){
+      let list = state.listPion.filter(element=>{return (element.props.x!==pion.props.x || element.props.y!==pion.props.y)})
+      list.push(new Pion({x:x,y:y,infos:new PionInfos(pion.props.infos.color,true)}))
+      return {...state, selectedPion:pion,listPion:list};
+    }
+    return state;
   }
-  return state;
+  let list = state.listPion.filter(element=>{return (element.props.x!==selectedPion.props.x || element.props.y!==selectedPion.props.y)})
+  if (pion!==undefined){
+    list.push(new Pion({x:selectedPion.props.x,y:selectedPion.props.y,infos:new PionInfos(selectedPion.props.infos.color,false)}))
+    list = list.filter(element=>{return (element.props.x!==pion.props.x || element.props.y!==pion.props.y)})
+    list.push(new Pion({x:x,y:y,infos:new PionInfos(pion.props.infos.color,true)}))
+    return {...state, selectedPion:pion,listPion:list};
+  }
+  list.push(new Pion({x:x,y:y,infos:new PionInfos(selectedPion.props.infos.color,false)}))
+  return{...state, selectedPion:undefined,listPion:list}
 }
 
-function findColorPion(listPion:Pion[],x:number,y:number,caseColor:CaseColor):PionColor|null{
+function findPion(listPion:Pion[],x:number,y:number):PionInfos|null{
   for (let i = 0; i < listPion.length; i++) {
     const element = listPion[i];
     if(element.props.x===x && element.props.y===y){
-      return element.props.color;
+      return element.props.infos;
     }
   }
   return null;
@@ -68,17 +76,19 @@ function findColorPion(listPion:Pion[],x:number,y:number,caseColor:CaseColor):Pi
 function initGame(props:Props):Pion[]{
 
   let listPion:Pion[]=[];
-  for (let y = 0; y < 2; y++) {
+  for (let y = 0; y < 4; y++) {
     for (let x = 0; x < props.nombreLigne; x++) {
       if(colorCase(x,y)===CaseColor.BLACK){
-        listPion.push(new Pion({color:PionColor.BLACK,x:x,y:y}));
+        let infos = new PionInfos(PionColor.BLACK,false);
+        listPion.push(new Pion({infos:infos,x:x,y:y}));
       }
     }
   }
-  for (let y = props.nombreLigne-2; y < props.nombreLigne; y++) {
+  for (let y = props.nombreLigne-4; y < props.nombreLigne; y++) {
     for (let x = 0; x < props.nombreLigne; x++) {
       if(colorCase(x,y)===CaseColor.BLACK){
-        listPion.push(new Pion({color:PionColor.WHITE,x:x,y:y}));
+        let infos = new PionInfos(PionColor.WHITE,false);
+        listPion.push(new Pion({infos:infos,x:x,y:y}));
       }
     }
   }

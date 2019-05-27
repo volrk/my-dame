@@ -1,13 +1,13 @@
 
 import React from 'react';
 import './Case.css';
-import Pion, { PionColor } from '../Pion/Pion';
+import Pion, {PionInfos } from '../Pion/Pion';
 
 
 export interface Props {
     x:number,
     y:number,
-    pionColor: PionColor|null,
+    pionInfos: PionInfos|null,
     caseColor:CaseColor,
     select : ()=>void
 
@@ -16,7 +16,7 @@ export interface Props {
 function Case(props:Props) {
   return (
     <div className={"case " +props.caseColor} onClick={()=>props.select()}>
-        {props.pionColor===null? <></>:<Pion x={props.x} y={props.y} color={props.pionColor} />}
+        {props.pionInfos===null? <></>:<Pion x={props.x} y={props.y} infos={props.pionInfos} />}
     </div>
   );
 }
