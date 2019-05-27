@@ -1,0 +1,14 @@
+.case{
+    width: 60px;
+    height: 60px;
+    border-width: 2px;
+    border-color: black;
+    border-style: solid;
+    float: left;
+    text-align: center;
+    
+}
+
+.black{
+    background: black;
+}
