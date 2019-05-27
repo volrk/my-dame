@@ -14,10 +14,9 @@ export interface Props {
 }
 
 export class  Pion extends React.Component<Props> {
-
   render() {
-    return <button className={"pion " + this.props.color}>
-     </button>
+    return <div className={"pion " + this.props.color}>
+     </div>
   }
 }
 
