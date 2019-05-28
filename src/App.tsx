@@ -1,6 +1,6 @@
 import React from 'react';
 import './App.css';
-import Damier from './components/components/Damier/Damier';
+import Damier from './components/Damier/Damier';
 
 const App: React.FC = () => {
   return (
