@@ -6,25 +6,17 @@ export enum PionColor{
   BLACK = "black",
   WHITE = "white"
 }
-export class PionInfos{
-  color:PionColor = PionColor.BLACK;
-  isSelected:boolean =false;
-
-  constructor(color:PionColor,isSelected:boolean ){
-    this.color=color;
-    this.isSelected=isSelected;
-  }
-}
 
 export interface Props {
   x:number,
   y:number,
-  infos:PionInfos,
+  color:PionColor
+  isSelected:boolean
 }
 
 export class  Pion extends React.Component<Props> {
   render() {
-    return <div className={"pion " +this.props.infos.color + " " + (this.props.infos.isSelected?"selected":"")}>
+    return <div className={"pion " +this.props.color + " " + (this.props.isSelected?"selected":"")}>
      </div>
   }
 }

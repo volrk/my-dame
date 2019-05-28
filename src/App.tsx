@@ -6,7 +6,7 @@ const App: React.FC = () => {
   return (
     <div className="App">
       <header className="App-header">
-        <Damier nombreLigne={10}></Damier>
+        <Damier></Damier>
       </header>
     </div>
   );
