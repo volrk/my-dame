@@ -7,11 +7,13 @@
 }
 
 .pion.black{
+    color: white;
     background: black;
     border:2px solid white;
 }
 
 .pion.white{
+    color: black;
     background: white;
     border: 2px solid black
 }

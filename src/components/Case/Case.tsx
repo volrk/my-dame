@@ -16,7 +16,11 @@ export interface Props {
 function Case(props:Props) {
   return (
     <div className={"case " +props.caseColor} onClick={()=>props.select()}>
-        {props.pion===undefined? <></>:<Pion x={props.pion.props.x} y={props.pion.props.y} color={props.pion.props.color} isSelected={props.pion.props.isSelected}/>}
+        {props.pion===undefined? <></>:<Pion x={props.pion.props.x} 
+                                            y={props.pion.props.y} 
+                                            color={props.pion.props.color} 
+                                            isSelected={props.pion.props.isSelected}
+                                            isReine={props.pion.props.isReine}/>}
     </div>
   );
 }

@@ -6,7 +6,7 @@ import Pion, { PionColor } from '../Pion/Pion';
 it('renders without crashing', () => {
   const div = document.createElement('div');
   ReactDOM.render(<Case caseColor={CaseColor.BLACK} 
-                        pion={new Pion({x:1, y:1, color:PionColor.BLACK,isSelected:false})}
+                        pion={new Pion({x:1, y:1, color:PionColor.BLACK,isSelected:false,isReine:false})}
                         select={()=>{}}
                         x={1}
                         y={1}/>, div);

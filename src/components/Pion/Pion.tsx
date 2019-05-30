@@ -1,6 +1,7 @@
 
 import * as React from 'react';
 import './Pion.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 export enum PionColor{
   BLACK = "black",
@@ -10,8 +11,9 @@ export enum PionColor{
 export interface Props {
   x:number,
   y:number,
-  color:PionColor
-  isSelected:boolean
+  color:PionColor,
+  isSelected:boolean,
+  isReine:boolean
 }
 
 export class  Pion extends React.Component<Props> {
@@ -25,6 +27,7 @@ export class  Pion extends React.Component<Props> {
 
   render() {
     return <div className={"pion " +this.props.color + " " + (this.props.isSelected?"selected":"")}>
+        {this.props.isReine?<FontAwesomeIcon icon="crown"/>:<></>}
      </div>
   }
 }
