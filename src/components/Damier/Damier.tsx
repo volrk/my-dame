@@ -4,6 +4,9 @@ import './Damier.css';
 import Case, {colorCase, CaseColor} from '../Case/Case';
 import  Pion, { PionColor } from '../Pion/Pion';
 import { Constante, ActionPossible } from '../../constante/Constante';
+import { iaGame } from '../../service/IA/IAService';
+import { isAvance, getPionEntre, isDevientReine } from '../../service/shared/SharedService';
+import { delay } from 'q';
 
 export interface Props {
 };
@@ -36,8 +39,37 @@ function Damier(props:Props) {
   return (
     <div>
       {jeux}
+      <button onClick={()=>setState(ia(state,PionColor.BLACK))}> Black IA </button>
+      <button onClick={()=>setState(ia(state,PionColor.WHITE))}> White IA </button>
+      <button onClick={async()=>{
+        let test = 1;
+        while (test<1000) {
+          await delay(20)
+          setState(ia(state,PionColor.BLACK))
+          await delay(20)
+          setState(ia(state,PionColor.WHITE))
+          test++
+        }
+      }}> 1000 IA </button>
     </div>
+    
   );
+}
+
+function ia(state:State,color:PionColor):State{
+  const play = iaGame(state,color);
+  if (play===undefined){
+    return state;
+  }
+  let x = selectPion(state, play.pion.props.x,play.pion.props.y)
+  switch (play.action) {
+    case ActionPossible.Deplacement:
+      return deplacerPion(x,play.x,play.y)    
+    case ActionPossible.Manger:
+      return mangerPion(x,play.x,play.y);
+    default:
+      return state;
+  }
 }
 
 function handleClick(state:State, x:number,y:number):State{
@@ -50,11 +82,9 @@ function handleClick(state:State, x:number,y:number):State{
     case ActionPossible.Selection:
       return selectPion(state,x,y);
     case ActionPossible.Deselection:
-      return deselectPion(state,x,y);
+      return deselectPion(state);
     case ActionPossible.Deplacement:
-      return deplacerPion(state,x,y);
-    case ActionPossible.DevientReine:
-      return pionDevientReine(state,x,y);    
+      return deplacerPion(state,x,y);   
     case ActionPossible.Manger:
       return mangerPion(state,x,y);
     default:
@@ -75,7 +105,7 @@ function selectPion(state:State, x:number,y:number):State{
   return {...state, selectedPion:pion,pions:list};
 }
 
-function deselectPion(state:State, x:number,y:number):State{
+function deselectPion(state:State):State{
   let list =  state.pions.slice();
   const selectedPion = state.selectedPion;
   if(selectedPion!==undefined){
@@ -89,17 +119,11 @@ function deplacerPion(state:State, x:number,y:number):State{
   const selectedPion = state.selectedPion;
   if(selectedPion!==undefined){
     list[selectedPion.props.x][selectedPion.props.y]=undefined
-    list[x][y]=new Pion({x:x,y:y,color:selectedPion.props.color, isSelected: false,isReine:selectedPion.props.isReine})
-  }
-  return{...state, selectedPion:undefined,pions:list}
-}
-
-function pionDevientReine(state:State, x:number,y:number):State{
-  let list =  state.pions.slice();
-  const selectedPion = state.selectedPion;
-  if(selectedPion!==undefined){
-    list[selectedPion.props.x][selectedPion.props.y]=undefined
-    list[x][y]=new Pion({x:x,y:y,color:selectedPion.props.color, isSelected: false,isReine:true})
+    if(isDevientReine(selectedPion,y)){
+      list[x][y]=new Pion({x:x,y:y,color:selectedPion.props.color, isSelected: false,isReine:true})
+    }else{
+      list[x][y]=new Pion({x:x,y:y,color:selectedPion.props.color, isSelected: false,isReine:selectedPion.props.isReine})
+    }
   }
   return{...state, selectedPion:undefined,pions:list}
 }
@@ -108,9 +132,13 @@ function mangerPion(state:State, x:number,y:number):State{
   let list =  state.pions.slice();
   const selectedPion = state.selectedPion;
   if(selectedPion!==undefined){
-    const pionEntre = getPionEntre(state,x,y)[0];
+    const pionEntre = getPionEntre(state.pions,state.selectedPion,x,y)[0];
     list[selectedPion.props.x][selectedPion.props.y]=undefined
-    list[x][y]=new Pion({x:x,y:y,color:selectedPion.props.color, isSelected: false, isReine:selectedPion.props.isReine})
+    if(isDevientReine(selectedPion,y)){
+      list[x][y]=new Pion({x:x,y:y,color:selectedPion.props.color, isSelected: false,isReine:true})
+    }else{
+      list[x][y]=new Pion({x:x,y:y,color:selectedPion.props.color, isSelected: false,isReine:selectedPion.props.isReine})
+    }
     if(pionEntre!==undefined){
       list[pionEntre.props.x][pionEntre.props.y]=undefined
     }
@@ -131,9 +159,6 @@ export function getActionPossible(state:State, x:number,y:number):ActionPossible
   if(selectedPion!==undefined){
     if(!selectedPion.props.isReine){
       if(Math.abs(selectedPion.props.x-x)===1 && Math.abs(selectedPion.props.y-y)===1 && isAvance(selectedPion,y)){
-        if(isDevientReine(selectedPion,y)){
-          return ActionPossible.DevientReine;
-        }
         return ActionPossible.Deplacement;
       }
       if(Math.abs(selectedPion.props.x-x)===2 && Math.abs(selectedPion.props.y-y)===2 ){
@@ -144,10 +169,10 @@ export function getActionPossible(state:State, x:number,y:number):ActionPossible
       }
     }else{
       if(Math.abs(selectedPion.props.x-x)===Math.abs(selectedPion.props.y-y)){
-        let nombrePionEntre = getPionEntre(state,x,y).length
-        if(nombrePionEntre===0){
+        let pionsEntre = getPionEntre(state.pions,state.selectedPion,x,y)
+        if(pionsEntre.length===0){
           return ActionPossible.Deplacement;
-        }else if(nombrePionEntre===1){
+        }else if(pionsEntre.length===1 && pionsEntre[0].props.color!== selectedPion.props.color){
           return ActionPossible.Manger;
         }
       }
@@ -155,61 +180,6 @@ export function getActionPossible(state:State, x:number,y:number):ActionPossible
 
   }
   return ActionPossible.Rien;
-}
-
-function getPionEntre(state:State, x:number,y:number):Pion[]{
-  let listPion:Pion[]=[]
-  const list =  state.pions;
-  const selectedPion = state.selectedPion;
-  if(selectedPion!==undefined){
-    for (let _x = selectedPion.props.x+1; _x <= selectedPion.props.x+Math.abs(selectedPion.props.x-x); _x++) {
-      for (let _y = selectedPion.props.y+1; _y <= selectedPion.props.y+Math.abs(selectedPion.props.y-y); _y++) {
-        if(Math.abs(selectedPion.props.x-_x)===Math.abs(selectedPion.props.y-_y)){
-          let pion = undefined;
-          if(selectedPion.props.x<x){
-            if(selectedPion.props.y<y){
-              pion = list[selectedPion.props.x+Math.abs(selectedPion.props.x-_x)][selectedPion.props.y+Math.abs(selectedPion.props.y-_y)];
-            }else{
-              pion = list[selectedPion.props.x+Math.abs(selectedPion.props.x-_x)][selectedPion.props.y-Math.abs(selectedPion.props.y-_y)];
-            }
-          }else{
-            if(selectedPion.props.y<y){
-              pion = list[selectedPion.props.x-Math.abs(selectedPion.props.x-_x)][selectedPion.props.y+Math.abs(selectedPion.props.y-_y)];
-            }else{
-              pion = list[selectedPion.props.x-Math.abs(selectedPion.props.x-_x)][selectedPion.props.y-Math.abs(selectedPion.props.y-_y)];
-            }
-          }
-          if(pion!==undefined){
-            listPion.push(pion)
-          }
-          break
-        }
-      }
-    }
-  }
-  return listPion;
-}
-
-function isAvance(pion:Pion,y:number):boolean{
-  if(pion.props.color===PionColor.BLACK && pion.props.y-y<0){
-    return true;
-  }
-  if(pion.props.color===PionColor.WHITE && pion.props.y-y>0){
-    return true;
-  }
-  return false;
-}
-
-function isDevientReine(pion:Pion,y:number):boolean{
-  if(!pion.props.isReine){
-    if(pion.props.color===PionColor.BLACK && y===Constante.ligneBlanc){
-      return true;
-    }
-    if(pion.props.color===PionColor.WHITE && y===Constante.ligneNoir){
-      return true;
-    }
-  }
-  return false
 }
 
 export function initGame():(undefined|Pion)[][]{

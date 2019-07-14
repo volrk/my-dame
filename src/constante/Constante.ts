@@ -8,7 +8,6 @@ export class Constante{
 export enum ActionPossible{
     Rien,
     Selection,
-    DevientReine,
     Deselection,
     Deplacement,
     Manger
