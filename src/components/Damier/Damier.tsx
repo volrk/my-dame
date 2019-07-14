@@ -8,7 +8,7 @@ import { Constante, ActionPossible } from '../../constante/Constante';
 export interface Props {
 };
 
-interface State {
+export interface State {
   selectedPion:Pion|undefined,
   pions: (undefined|Pion)[][];
 };
@@ -118,7 +118,7 @@ function mangerPion(state:State, x:number,y:number):State{
   return{...state, selectedPion:undefined,pions:list}
 }
 
-function getActionPossible(state:State, x:number,y:number):ActionPossible{
+export function getActionPossible(state:State, x:number,y:number):ActionPossible{
   const list =  state.pions;
   const selectedPion = state.selectedPion;
   const pion = state.pions[x][y];
@@ -142,15 +142,17 @@ function getActionPossible(state:State, x:number,y:number):ActionPossible{
           return ActionPossible.Manger;
         }
       }
-    }
-    if(Math.abs(selectedPion.props.x-x)===Math.abs(selectedPion.props.y-y)){
-      let nombrePionEntre = getPionEntre(state,x,y).length
-      if(nombrePionEntre===0){
-        return ActionPossible.Deplacement;
-      }else if(nombrePionEntre===1){
-        return ActionPossible.Manger;
+    }else{
+      if(Math.abs(selectedPion.props.x-x)===Math.abs(selectedPion.props.y-y)){
+        let nombrePionEntre = getPionEntre(state,x,y).length
+        if(nombrePionEntre===0){
+          return ActionPossible.Deplacement;
+        }else if(nombrePionEntre===1){
+          return ActionPossible.Manger;
+        }
       }
     }
+
   }
   return ActionPossible.Rien;
 }
